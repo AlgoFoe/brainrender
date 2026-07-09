@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
     from brainrender.scene import Scene
@@ -22,6 +21,59 @@ from brainrender._video import Video
 from brainrender.camera import check_camera_param, get_camera_params
 
 
+class FrameGenerator(Protocol):
+    """Callable used to render a single frame of a video."""
+
+    def __call__(
+        self,
+        scene: Scene,
+        frame_number: int,
+        tot_frames: int,
+        resetcam: bool,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Parameters
+        ----------
+        scene
+            Scene being animated.
+        frame_number
+            Current frame number.
+        tot_frames
+            Total number of frames.
+        resetcam
+            If True the camera is reset.
+        """
+        ...
+
+class KeyframeCallback(Protocol):
+    """Callable used to trigger actions during a keyframe."""
+    
+    def __call__(
+        self,
+        scene: Scene,
+        frame_number: int,
+        tot_frames: int,
+        **kwargs: Any,
+    ) -> dict | None:
+        """
+        Parameters
+        ----------
+        scene
+            Scene being animated.
+        frame_number
+            Current frame number.
+        tot_frames
+            Total number of frames.
+
+        Returns
+        -------
+        dict or None
+            Optionally, camera parameters to use for this frame.
+        """
+        ...
+
 class VideoMaker:
     def __init__(
         self,
@@ -30,7 +82,7 @@ class VideoMaker:
         name: str,
         fmt: str = "mp4",
         size: str = "1620x1050",
-        make_frame_func: Callable[..., None] | None = None,
+        make_frame_func: FrameGenerator | None = None,
     ) -> None:
         """
         Create a video by animating a scene and saving a sequence of screenshots.
@@ -313,7 +365,7 @@ class Animation(VideoMaker):
         camera: dict | None = None,
         zoom: float | None = None,
         interpol: str = "sigma",
-        callback: Callable[..., dict | None] | None = None,
+        callback: KeyframeCallback | None = None,
         **kwargs: Any,
     ) -> None:
         """
