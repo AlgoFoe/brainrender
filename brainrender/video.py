@@ -47,9 +47,10 @@ class FrameGenerator(Protocol):
         """
         ...
 
+
 class KeyframeCallback(Protocol):
     """Callable used to trigger actions during a keyframe."""
-    
+
     def __call__(
         self,
         scene: Scene,
@@ -73,6 +74,7 @@ class KeyframeCallback(Protocol):
             Optionally, camera parameters to use for this frame.
         """
         ...
+
 
 class VideoMaker:
     def __init__(
