@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from vedo import load, Mesh, Volume
+from vedo import Mesh, Volume, load
 
 
 def connected_to_internet(
